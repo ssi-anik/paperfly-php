@@ -4,6 +4,7 @@ require_once "vendor/autoload.php";
 
 use Anik\Paperfly\Client;
 use Anik\Paperfly\CreateOrder;
+use Anik\Paperfly\TrackOrder;
 
 $username = getenv('PAPERFLY_USERNAME');
 $password = getenv('PAPERFLY_PASSWORD');
@@ -13,7 +14,7 @@ if (empty($username) || empty($password)) {
     die('Either username or password is not configured');
 }
 
-function create_order()
+function create_order(): CreateOrder
 {
     $phoneNumber = getenv('PHONE_NUMBER') ?? '01701701701';
 
@@ -39,11 +40,24 @@ function create_order()
     ]);
 }
 
+function track_order(string $orderId): TrackOrder
+{
+    return TrackOrder::orderId($orderId);
+}
+
 $client = Client::useDefaultGuzzleClient($username, $password, $requiredHeaderValue);
 
 switch ($argv[1] ?? '') {
     case 'create_order':
         $transferable = create_order();
+        break;
+    case 'track_order':
+        $orderId = $argv[2] ?? '';
+        if (empty($orderId)) {
+            throw new Exception('Order id cannot be empty');
+        }
+
+        $transferable = track_order($orderId);
         break;
     default:
         throw new Exception('Invalid command');
