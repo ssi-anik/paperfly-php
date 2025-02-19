@@ -2,6 +2,7 @@
 
 require_once "vendor/autoload.php";
 
+use Anik\Paperfly\CancelOrder;
 use Anik\Paperfly\Client;
 use Anik\Paperfly\CreateOrder;
 use Anik\Paperfly\TrackOrder;
@@ -45,19 +46,30 @@ function track_order(string $orderId): TrackOrder
     return TrackOrder::orderId($orderId);
 }
 
+function cancel_order(string $orderId): CancelOrder
+{
+    return CancelOrder::orderId($orderId);
+}
+
 $client = Client::useDefaultGuzzleClient($username, $password, $requiredHeaderValue);
 
-switch ($argv[1] ?? '') {
+switch ($command = $argv[1] ?? '') {
     case 'create_order':
         $transferable = create_order();
+        echo sprintf('Creating order for: %s', $transferable->requestBody()['merOrderRef']) . PHP_EOL;
         break;
     case 'track_order':
+    case 'cancel_order':
         $orderId = $argv[2] ?? '';
         if (empty($orderId)) {
             throw new Exception('Order id cannot be empty');
         }
 
-        $transferable = track_order($orderId);
+        if ($command == 'track_order') {
+            $transferable = track_order($orderId);
+        } else {
+            $transferable = cancel_order($orderId);
+        }
         break;
     default:
         throw new Exception('Invalid command');
