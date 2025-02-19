@@ -2,10 +2,10 @@
 
 require_once "vendor/autoload.php";
 
-use Anik\Paperfly\CancelOrder;
 use Anik\Paperfly\Client;
-use Anik\Paperfly\CreateOrder;
-use Anik\Paperfly\TrackOrder;
+use Anik\Paperfly\Transfers\CancelOrder;
+use Anik\Paperfly\Transfers\CreateOrder;
+use Anik\Paperfly\Transfers\TrackOrder;
 
 $username = getenv('PAPERFLY_USERNAME');
 $password = getenv('PAPERFLY_PASSWORD');
@@ -56,7 +56,7 @@ $client = Client::useDefaultGuzzleClient($username, $password, $requiredHeaderVa
 switch ($command = $argv[1] ?? '') {
     case 'create_order':
         $transferable = create_order();
-        echo sprintf('Creating order for: %s', $transferable->requestBody()['merOrderRef']) . PHP_EOL;
+        echo sprintf('Creating order for: %s', $transferable->requestBody()['merOrderRef']).PHP_EOL;
         break;
     case 'track_order':
     case 'cancel_order':
@@ -75,4 +75,13 @@ switch ($command = $argv[1] ?? '') {
         throw new Exception('Invalid command');
 }
 
-dd($client->gracefulTransfer($transferable));
+$response = $client->gracefulTransfer($transferable);
+dd(
+    $response->isSuccessful(), // http returns a successful response
+    $response->wasTransferred(), // was transferred via the wire, network error will return false
+    $response->message(), // when successful, it will be null, otherwise error/exception message
+    $response->contentRaw(), // raw data if successfully sent over the wire
+    $response->content(), // associative array of the content, null if content is empty, empty array if data cannot be `json_decode`d
+    $response->content(false), // \stdClass of the content, null if content is empty, empty \stdClass if data cannot be `json_decode`d
+    $response
+);
