@@ -3,7 +3,7 @@
 require_once "vendor/autoload.php";
 
 use Anik\Paperfly\Client;
-use Anik\Paperfly\Order;
+use Anik\Paperfly\CreateOrder;
 
 $username = getenv('PAPERFLY_USERNAME');
 $password = getenv('PAPERFLY_PASSWORD');
@@ -17,7 +17,7 @@ function create_order()
 {
     $phoneNumber = getenv('PHONE_NUMBER') ?? '01701701701';
 
-    return Order::buildFrom([
+    return CreateOrder::buildFrom([
         "order_id" => uniqid('oid_'),
         /*"merchant_name" => "test",
         "merchant_address" => "test",

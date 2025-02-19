@@ -4,7 +4,7 @@ namespace Anik\Paperfly;
 
 use Anik\Paperfly\Contracts\Transferable;
 
-class Order implements Transferable
+class CreateOrder implements Transferable
 {
     private ?string $orderId = null;
     private string $pickupMerchantName = "";
@@ -61,7 +61,7 @@ class Order implements Transferable
         return $order;
     }
 
-    public static function build(): Order
+    public static function build(): CreateOrder
     {
         return new self();
     }
