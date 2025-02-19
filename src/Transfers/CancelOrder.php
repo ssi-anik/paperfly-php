@@ -1,6 +1,6 @@
 <?php
 
-namespace Anik\Paperfly;
+namespace Anik\Paperfly\Transfers;
 
 use Anik\Paperfly\Contracts\Transferable;
 
