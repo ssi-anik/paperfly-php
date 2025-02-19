@@ -46,7 +46,7 @@ class Client
         return new static($client);
     }
 
-    public function transfer(Transferable $transferable): array
+    public function transfer(Transferable $transferable): Response
     {
         if (strtoupper($method = $transferable->method()) == 'GET') {
             $optionKey = RequestOptions::QUERY;
@@ -62,24 +62,19 @@ class Client
             ]
         );
 
-        return [
-            'error' => false,
-            'status' => $response->getStatusCode(),
-            'content' => $response->getBody()->getContents(),
-        ];
+        return new Response($response->getStatusCode(), $response->getBody()->getContents());
     }
 
-    public function gracefulTransfer(Transferable $transferable): array
+    public function gracefulTransfer(Transferable $transferable): Response
     {
         try {
             return $this->transfer($transferable);
         } catch (Throwable $t) {
-            return [
-                'error' => true,
-                'code' => $t->getCode(),
-                'message' => $t->getMessage(),
-                'content' => $t instanceof RequestException ? $t->getResponse()->getBody()->getContents() : '{}',
-            ];
+            return new Response(
+                $t->getCode(),
+                $t instanceof RequestException ? $t->getResponse()->getBody()->getContents() : '{}',
+                $t->getMessage()
+            );
         }
     }
 }
