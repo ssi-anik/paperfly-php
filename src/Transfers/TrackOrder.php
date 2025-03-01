@@ -2,9 +2,12 @@
 
 namespace Anik\Paperfly\Transfers;
 
+use Anik\Paperfly\Contracts\ExtendsResponse;
 use Anik\Paperfly\Contracts\Transferable;
+use Anik\Paperfly\Response;
+use Anik\Paperfly\TrackOrderResponse;
 
-class TrackOrder implements Transferable
+class TrackOrder implements Transferable, ExtendsResponse
 {
     private string $orderId;
 
@@ -33,5 +36,10 @@ class TrackOrder implements Transferable
         return [
             'ReferenceNumber' => $this->orderId,
         ];
+    }
+
+    public function getResponse(int $statusCode, string $content): Response
+    {
+        return new TrackOrderResponse($statusCode, $content);
     }
 }

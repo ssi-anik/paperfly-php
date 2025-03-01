@@ -15,7 +15,7 @@ if (empty($username) || empty($password)) {
     die('Either username or password is not configured');
 }
 
-function create_order(): CreateOrder
+function create_order(?string $type = null): CreateOrder
 {
     $phoneNumber = getenv('PHONE_NUMBER') ?? '01701701701';
 
@@ -28,8 +28,8 @@ function create_order(): CreateOrder
         "merchant_phone" => $phoneNumber,
         "product_size_weight" => "standard",
         "product_brief" => "USB Fan",
-        "weight_in_kilo" => "1",
-        "package_price" => "0",
+        "weight_in_kilo" => "1.2",
+        "package_price" => "2345",
         "delivery_option" => "regular",
         "customer_name" => "Abin Hasan",
         "customer_address" => "Road 27, Dhanmondi",
@@ -37,7 +37,7 @@ function create_order(): CreateOrder
         "customer_district" => "Dhaka",
         "customer_phone" => $phoneNumber,
         "special_instruction" => "open box",
-        "order_type" => "regular",
+        "order_type" => $type ?? "regular",
     ]);
 }
 
@@ -55,7 +55,7 @@ $client = Client::useDefaultGuzzleClient($username, $password, $requiredHeaderVa
 
 switch ($command = $argv[1] ?? '') {
     case 'create_order':
-        $transferable = create_order();
+        $transferable = create_order($argv[2] ?? 'regular');
         echo sprintf('Creating order for: %s', $transferable->requestBody()['merOrderRef']).PHP_EOL;
         break;
     case 'track_order':
@@ -76,12 +76,30 @@ switch ($command = $argv[1] ?? '') {
 }
 
 $response = $client->gracefulTransfer($transferable);
+/**
+ * Create order
+ */
+/*dd(
+    $response->isSuccessful()
+        ? ['tracking' => $response->trackingNumber(), 'barcode' => $response->trackingBarcode()]
+        : $response->message()
+);*/
+
+/**
+ * Track order
+ */
+/*dd(
+    \Anik\Paperfly\orderStatus($response->content()['success']['trackingStatus'][0]),
+    $response->currentStatus()
+);*/
 dd(
     $response->isSuccessful(), // http returns a successful response
     $response->wasTransferred(), // was transferred via the wire, network error will return false
     $response->message(), // when successful, it will be null, otherwise error/exception message
     $response->contentRaw(), // raw data if successfully sent over the wire
-    $response->content(), // associative array of the content, null if content is empty, empty array if data cannot be `json_decode`d
-    $response->content(false), // \stdClass of the content, null if content is empty, empty \stdClass if data cannot be `json_decode`d
+    // associative array of the content, null if content is empty, empty array if data cannot be `json_decode`d
+    $response->content(),
+    // \stdClass of the content, null if content is empty, empty \stdClass if data cannot be `json_decode`d
+    $response->content(false),
     $response
 );

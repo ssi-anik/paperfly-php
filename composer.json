@@ -5,7 +5,10 @@
     "autoload": {
         "psr-4": {
             "Anik\\Paperfly\\": "src/"
-        }
+        },
+        "files": [
+            "src/methods.php"
+        ]
     },
     "authors": [
         {

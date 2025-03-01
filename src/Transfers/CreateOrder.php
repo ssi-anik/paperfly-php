@@ -2,9 +2,12 @@
 
 namespace Anik\Paperfly\Transfers;
 
+use Anik\Paperfly\Contracts\ExtendsResponse;
 use Anik\Paperfly\Contracts\Transferable;
+use Anik\Paperfly\CreateOrderResponse;
+use Anik\Paperfly\Response;
 
-class CreateOrder implements Transferable
+class CreateOrder implements Transferable, ExtendsResponse
 {
     private ?string $orderId = null;
     private string $pickupMerchantName = "";
@@ -15,7 +18,7 @@ class CreateOrder implements Transferable
     private string $productSizeWeight = "";
     private string $productBrief = "";
     private float $weight = 0;
-    private float $packagePrice = 0;
+    private int $packagePrice = 0;
     private string $deliveryOption = "";
     private string $customerName = "";
     private string $customerAddress = "";
@@ -25,7 +28,7 @@ class CreateOrder implements Transferable
     private string $specialInstruction = "";
     private string $orderType = "";
 
-    public static function buildFrom(array $values)
+    public static function buildFrom(array $values): self
     {
         $order = static::build();
 
@@ -139,7 +142,7 @@ class CreateOrder implements Transferable
         return $this->maxWeightInKilo($weightInGram / 1000);
     }
 
-    public function packagePrice(float $packagePrice): self
+    public function packagePrice(int $packagePrice): self
     {
         $this->packagePrice = $packagePrice;
 
@@ -202,6 +205,11 @@ class CreateOrder implements Transferable
         return $this;
     }
 
+    public function orderTypeExchange(): self
+    {
+        return $this->orderType('Exchange');
+    }
+
     public function method(): string
     {
         return 'POST';
@@ -214,7 +222,25 @@ class CreateOrder implements Transferable
 
     public function requestBody(): array
     {
-        return [
+        $conditional = [];
+        if (strtolower($this->orderType) == 'exchange') {
+            $conditional = [
+                'productBrief' => '',
+                'packagePrice' => 0,
+                'max_weight' => 0,
+                'exchange_description' => $this->productBrief,
+                'exchange_price' => $this->packagePrice,
+                'exchange_weight' => $this->weight,
+            ];
+        } else {
+            $conditional = [
+                'productBrief' => $this->productBrief,
+                'max_weight' => $this->weight,
+                'packagePrice' => $this->packagePrice,
+            ];
+        }
+
+        return array_merge([
             'merOrderRef' => $this->orderId,
             'pickMerchantName' => $this->pickupMerchantName,
             'pickMerchantAddress' => $this->pickupMerchantAddress,
@@ -222,9 +248,9 @@ class CreateOrder implements Transferable
             'pickMerchantDistrict' => $this->pickupMerchantDistrict,
             'pickupMerchantPhone' => $this->pickupMerchantPhone,
             'productSizeWeight' => $this->productSizeWeight,
-            'productBrief' => $this->productBrief,
+            /*'productBrief' => $this->productBrief,
             'max_weight' => $this->weight,
-            'packagePrice' => $this->packagePrice,
+            'packagePrice' => $this->packagePrice,*/
             'deliveryOption' => $this->deliveryOption,
             'custname' => $this->customerName,
             'custaddress' => $this->customerAddress,
@@ -233,6 +259,11 @@ class CreateOrder implements Transferable
             'custPhone' => $this->customerPhone,
             'special_instruction' => $this->specialInstruction,
             'order_type' => $this->orderType,
-        ];
+        ], $conditional);
+    }
+
+    public function getResponse(int $statusCode, string $content): Response
+    {
+        return new CreateOrderResponse($statusCode, $content);
     }
 }
