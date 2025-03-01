@@ -2,6 +2,7 @@
 
 namespace Anik\Paperfly;
 
+use Anik\Paperfly\Contracts\ExtendsResponse;
 use Anik\Paperfly\Contracts\Transferable;
 use Composer\InstalledVersions;
 use GuzzleHttp\Client as GuzzleClient;
@@ -62,7 +63,9 @@ class Client
             ]
         );
 
-        return new Response($response->getStatusCode(), $response->getBody()->getContents());
+        return $transferable instanceof ExtendsResponse
+            ? $transferable->getResponse($response->getStatusCode(), $response->getBody()->getContents())
+            : new Response($response->getStatusCode(), $response->getBody()->getContents());
     }
 
     public function gracefulTransfer(Transferable $transferable): Response

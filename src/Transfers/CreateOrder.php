@@ -2,9 +2,12 @@
 
 namespace Anik\Paperfly\Transfers;
 
+use Anik\Paperfly\Contracts\ExtendsResponse;
 use Anik\Paperfly\Contracts\Transferable;
+use Anik\Paperfly\CreateOrderResponse;
+use Anik\Paperfly\Response;
 
-class CreateOrder implements Transferable
+class CreateOrder implements Transferable, ExtendsResponse
 {
     private ?string $orderId = null;
     private string $pickupMerchantName = "";
@@ -257,5 +260,10 @@ class CreateOrder implements Transferable
             'special_instruction' => $this->specialInstruction,
             'order_type' => $this->orderType,
         ], $conditional);
+    }
+
+    public function getResponse(int $statusCode, string $content): Response
+    {
+        return new CreateOrderResponse($statusCode, $content);
     }
 }
