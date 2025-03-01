@@ -222,7 +222,6 @@ class CreateOrder implements Transferable, ExtendsResponse
 
     public function requestBody(): array
     {
-        $conditional = [];
         if (strtolower($this->orderType) == 'exchange') {
             $conditional = [
                 'productBrief' => '',
@@ -235,8 +234,8 @@ class CreateOrder implements Transferable, ExtendsResponse
         } else {
             $conditional = [
                 'productBrief' => $this->productBrief,
-                'max_weight' => $this->weight,
                 'packagePrice' => $this->packagePrice,
+                'max_weight' => $this->weight,
             ];
         }
 
