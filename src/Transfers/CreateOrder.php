@@ -261,8 +261,8 @@ class CreateOrder implements Transferable, ExtendsResponse
         ], $conditional);
     }
 
-    public function getResponse(int $statusCode, string $content): Response
+    public function getResponse(int $statusCode, string $content, ?string $message = null): Response
     {
-        return new CreateOrderResponse($statusCode, $content);
+        return new CreateOrderResponse($statusCode, $content, $message);
     }
 }

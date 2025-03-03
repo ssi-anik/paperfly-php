@@ -38,8 +38,8 @@ class TrackOrder implements Transferable, ExtendsResponse
         ];
     }
 
-    public function getResponse(int $statusCode, string $content): Response
+    public function getResponse(int $statusCode, string $content, ?string $message = null): Response
     {
-        return new TrackOrderResponse($statusCode, $content);
+        return new TrackOrderResponse($statusCode, $content, $message);
     }
 }

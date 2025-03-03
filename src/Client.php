@@ -73,11 +73,17 @@ class Client
         try {
             return $this->transfer($transferable);
         } catch (Throwable $t) {
-            return new Response(
-                $t->getCode(),
-                $t instanceof RequestException ? $t->getResponse()->getBody()->getContents() : '{}',
-                $t->getMessage()
-            );
+            return $transferable instanceof ExtendsResponse
+                ? $transferable->getResponse(
+                    $t->getCode(),
+                    $t instanceof RequestException ? $t->getResponse()->getBody()->getContents() : '{}',
+                    $t->getMessage()
+                )
+                : new Response(
+                    $t->getCode(),
+                    $t instanceof RequestException ? $t->getResponse()->getBody()->getContents() : '{}',
+                    $t->getMessage()
+                );
         }
     }
 }
