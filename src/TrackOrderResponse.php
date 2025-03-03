@@ -17,6 +17,6 @@ class TrackOrderResponse extends Response
     {
         $this->parseResponseIfNotParsed();
 
-        return orderStatus($this->parsed['success']['trackingStatus'][0]);
+        return orderStatus($this->parsed['success']['trackingStatus'][0] ?? []);
     }
 }
