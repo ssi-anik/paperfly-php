@@ -16,7 +16,7 @@ const STATUS_CLOSED = 'closed';
 
 function orderStatus(array $info): string
 {
-    if ($info['STATUS_CLOSED'] ?? null) {
+    if ($info['closeTime'] ?? null) {
         return STATUS_CLOSED;
     }
     if ($info['invNum'] ?? null) {
@@ -43,7 +43,7 @@ function orderStatus(array $info): string
     if ($info['inTransitTime'] ?? null) {
         return STATUS_IN_TRANSIT;
     }
-    if ($info['inTransitTime'] ?? null) {
+    if ($info['PickTime'] ?? null) {
         return STATUS_PICKED;
     }
 
